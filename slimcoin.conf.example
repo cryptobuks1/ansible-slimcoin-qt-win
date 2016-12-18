@@ -1,0 +1,5 @@
+daemon=1
+rpcuser=slimcoinrpcuser
+rpcpassword=slimcoinrpcuserpassword
+rpcallowip=127.0.0.1
+

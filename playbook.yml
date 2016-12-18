@@ -1,9 +1,9 @@
 ---
 
-- name: Ansible Playbook for installing dogecoind on Digital Ocean
+- name: Ansible Playbook for cross-compiling a Windows slimcoin-qt binary on an Ubuntu 16.04 VM
 
-  hosts: webservers
+  hosts: xcomp
   roles:
-    - dogcoind
+    - vagrant
   remote_user: root
   sudo: yes

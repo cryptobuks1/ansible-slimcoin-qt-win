@@ -5,7 +5,7 @@
 - name: Upgrade full
   apt: upgrade=full
 
-- name: Install dependencies to prep for dogecoind
+- name: Install dependencies to prep for slimcoind
   apt: pkg={{item}} state=installed update-cache=yes
   with_items:
     - ntp
@@ -15,7 +15,7 @@
     - libdb-dev
     - libdb++-dev 
     - libqrencode-dev
-    - libboost1.48-all-dev
+    - libboost-dev
 
 - name: Create swap space
   command: dd if=/dev/zero of=/extraswap bs=1M count=512
@@ -34,25 +34,25 @@
 - name: Set swapiness
   shell: echo 0 | sudo tee /proc/sys/vm/swappiness
 
-- name: Checkout dogecoin
-  git: repo=https://github.com/dogecoin/dogecoin
-       dest=/tmp/dogecoin
-       version=v1.3
+- name: Checkout slimcoin
+  git: repo=https://github.com/slimcoin-project/slimcoin
+       dest=/tmp/slimcoin
+       version=v1.4
 
-- name: Build dogecoind
-  command: chdir=/tmp/dogecoin/src make -j2 -f makefile.unix USE_UPNP=- creates=/usr/local/bin/dogecoind
+- name: Build slimcoind
+  command: chdir=/tmp/slimcoin/src make -j2 -f makefile.unix USE_UPNP=- creates=/usr/local/bin/slimcoind
 
-- name: Move dogcoind to /usr/local/bin
-  command: cp /tmp/dogecoin/src/dogecoind /usr/local/bin/dogecoind creates=/usr/local/bin/dogecoind
+- name: Move slimcoind to /usr/local/bin
+  command: cp /tmp/slimcoin/src/slimcoind /usr/local/bin/slimcoind creates=/usr/local/bin/slimcoind
 
-- name: Setup ~/.dogecoin
-  shell: mkdir ~/.dogecoin creates=~/.dogecoin/dogecoin.conf
+- name: Setup ~/.slimcoin
+  shell: mkdir ~/.slimcoin creates=~/.slimcoin/slimcoin.conf
 
-- name: setup ~/.dogecoin/dogecoin.conf
-  copy: src=./dogecoin.conf dest=~/.dogecoin/dogecoin.conf mode=0600
+- name: setup ~/.slimcoin/slimcoin.conf
+  copy: src=./slimcoin.conf dest=~/.slimcoin/slimcoin.conf mode=0600
 
-- name: Run dogecoind
-  shell: dogecoind
+- name: Run slimcoind
+  shell: slimcoind
 
 - name: Pause for 5 seconds
   pause: seconds=5
