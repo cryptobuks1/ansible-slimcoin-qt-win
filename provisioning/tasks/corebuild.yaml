@@ -1,0 +1,13 @@
+---
+- name: Slimcoin build
+  command: echo Slimcoin build
+
+- name: checkout Slimcoin repos
+  git: accept_hostkey=yes update=yes force=no repo=https://github.com/slimcoin-project/slimcoin.git
+       version=master dest=/mnt/slm/slimcoin
+
+- name: Copy crosscompile shell script to remote
+  action: copy src=files/crosscompileqt.sh dest=/mnt/slm/slimcoin owner=vagrant group=vagrant mode=0744
+
+- name: Run crosscompile script
+  shell: ./crosscompileqt.sh chdir=/mnt/slm/slimcoin

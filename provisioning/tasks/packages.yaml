@@ -1,0 +1,351 @@
+- name: Create swap space
+  command: dd if=/dev/zero of=/extraswap bs=1M count=512
+  when: ansible_swaptotal_mb < 1
+
+- name: Make swap
+  command: mkswap /extraswap
+  when: ansible_swaptotal_mb < 1
+
+- name: Add to fstab
+  action: lineinfile dest=/etc/fstab regexp="extraswap" line="/extraswap none swap sw 0 0" state=present
+  when: ansible_swaptotal_mb < 1
+
+- name: Turn swap on
+  command: swapon -a
+  when: ansible_swaptotal_mb < 1
+
+- name: Set swapiness
+  shell: echo 0 | sudo tee /proc/sys/vm/swappiness
+
+- name: Add MXE ppa
+  shell: echo "deb http://pkg.mxe.cc/repos/apt/debian wheezy main" > /etc/apt/sources.list.d/mxeapt.list
+
+- apt_key:
+    keyserver: keyserver.ubuntu.com
+    id: D43A795B73B16ABE9643FE1AFD8FFF16DB45C6AB
+
+# - name: install Steven Binner Qt ppa
+#   apt_repository: repo='ppa:beineri/opt-qt551-xenial'
+
+- name: Create build directory
+  file:
+    path: /mnt/slm
+    state: directory
+    mode: 0755
+
+- name: install software-properties-common
+  apt: 
+    name: software-properties-common
+    state: present
+
+- name: install aptitude
+  apt: 
+    name: aptitude
+    state: present
+
+- name: Only run "update_cache=yes" if the last one is more than 86400 seconds ago
+  apt:
+    update_cache: yes
+    cache_valid_time: 86400
+
+- name: Update all packages to the latest version
+  apt:
+    upgrade: dist
+
+# - name: install system packages
+#   apt: 
+#     name: build-essential
+#     state: present
+#     install-recommends: yes
+#     update-cache: yes
+
+- name: Install build-essential
+  action: apt pkg=build-essential
+
+- name: install build resources
+  apt: pkg={{item}}
+  with_items:
+    - pkg-config
+    - ntp
+    - git
+    - automake
+    - autotools-dev
+    - bsdmainutils
+    - curl
+    - protobuf-compiler
+    - unzip
+    - libevent-dev
+    - libssl-dev
+    - libtool
+
+- name: Install cross-compilation package MinGW-64bit-x86
+  action: apt pkg=mingw-w64-x86-64-dev
+
+- name: install MXE cross-compilation support packages
+  apt: "pkg={{item}} state=installed update-cache=yes"
+  with_items:
+    - mxe-i686-w64-mingw32.static-boost
+    - mxe-i686-w64-mingw32.static-qt
+    - mxe-i686-w64-mingw32.static-miniupnpc
+    - mxe-i686-w64-mingw32.static-binutils
+    - mxe-i686-w64-mingw32.static-bzip2
+    - mxe-i686-w64-mingw32.static-cairo
+    - mxe-i686-w64-mingw32.static-dbus
+    - mxe-i686-w64-mingw32.static-db
+    - mxe-i686-w64-mingw32.static-expat
+    - mxe-i686-w64-mingw32.static-fontconfig
+    - mxe-i686-w64-mingw32.static-freetds
+    - mxe-i686-w64-mingw32.static-freetype
+    - mxe-i686-w64-mingw32.static-freetype-bootstrap
+    - mxe-i686-w64-mingw32.static-gcc
+    - mxe-i686-w64-mingw32.static-gettext
+    - mxe-i686-w64-mingw32.static-glib
+    - mxe-i686-w64-mingw32.static-gmp
+    - mxe-i686-w64-mingw32.static-gnutls
+    - mxe-i686-w64-mingw32.static-harfbuzz
+    - mxe-i686-w64-mingw32.static-icu4c
+    - mxe-i686-w64-mingw32.static-jpeg
+    - mxe-i686-w64-mingw32.static-libffi
+    - mxe-i686-w64-mingw32.static-libgnurx
+    - mxe-i686-w64-mingw32.static-libiconv
+    - mxe-i686-w64-mingw32.static-libidn
+    - mxe-i686-w64-mingw32.static-libmysqlclient
+    - mxe-i686-w64-mingw32.static-libpng
+    - mxe-i686-w64-mingw32.static-libunistring
+    - mxe-i686-w64-mingw32.static-lzo
+    - mxe-i686-w64-mingw32.static-mingw-w64
+    - mxe-i686-w64-mingw32.static-mxe-conf
+    - mxe-i686-w64-mingw32.static-nettle
+    - mxe-i686-w64-mingw32.static-openssl
+    - mxe-i686-w64-mingw32.static-pcre
+    - mxe-i686-w64-mingw32.static-pixman
+    - mxe-i686-w64-mingw32.static-pkgconf
+    - mxe-i686-w64-mingw32.static-postgresql
+    - mxe-i686-w64-mingw32.static-pthreads
+    - mxe-i686-w64-mingw32.static-qtactiveqt
+    - mxe-i686-w64-mingw32.static-qtbase
+    - mxe-i686-w64-mingw32.static-qtdeclarative
+    - mxe-i686-w64-mingw32.static-qtmultimedia
+    - mxe-i686-w64-mingw32.static-qtscript
+    - mxe-i686-w64-mingw32.static-qtsvg
+    - mxe-i686-w64-mingw32.static-qttools
+    - mxe-i686-w64-mingw32.static-qtwebchannel
+    - mxe-i686-w64-mingw32.static-qtwebsockets
+    - mxe-i686-w64-mingw32.static-qtwinextras
+    - mxe-i686-w64-mingw32.static-qtxmlpatterns
+    - mxe-i686-w64-mingw32.static-sqlite
+    - mxe-i686-w64-mingw32.static-zlib
+
+# - name: Install cross-compilation package MinGW-64bit-x86
+#   action: apt pkg=mingw-w64-x86-64-dev
+
+# - name: install MXE cross-compilation support packages
+#   apt: "pkg={{item}} state=installed update-cache=yes"
+#   with_items:
+#     - mxe-x86-64-w64-mingw32.static-boost
+#     - mxe-x86-64-w64-mingw32.static-qt
+#     - mxe-x86-64-w64-mingw32.static-miniupnpc
+#     - mxe-x86-64-w64-mingw32.static-binutils
+#     - mxe-x86-64-w64-mingw32.static-bzip2
+#     - mxe-x86-64-w64-mingw32.static-cairo
+#     - mxe-x86-64-w64-mingw32.static-dbus
+#     - mxe-x86-64-w64-mingw32.static-expat
+#     - mxe-x86-64-w64-mingw32.static-fontconfig
+#     - mxe-x86-64-w64-mingw32.static-freetds
+#     - mxe-x86-64-w64-mingw32.static-freetype
+#     - mxe-x86-64-w64-mingw32.static-freetype-bootstrap
+#     - mxe-x86-64-w64-mingw32.static-gcc
+#     - mxe-x86-64-w64-mingw32.static-gettext
+#     - mxe-x86-64-w64-mingw32.static-glib
+#     - mxe-x86-64-w64-mingw32.static-gmp
+#     - mxe-x86-64-w64-mingw32.static-gnutls
+#     - mxe-x86-64-w64-mingw32.static-harfbuzz
+#     - mxe-x86-64-w64-mingw32.static-icu4c
+#     - mxe-x86-64-w64-mingw32.static-jpeg
+#     - mxe-x86-64-w64-mingw32.static-libffi
+#     - mxe-x86-64-w64-mingw32.static-libgnurx
+#     - mxe-x86-64-w64-mingw32.static-libiconv
+#     - mxe-x86-64-w64-mingw32.static-libidn
+#     - mxe-x86-64-w64-mingw32.static-libmysqlclient
+#     - mxe-x86-64-w64-mingw32.static-libpng
+#     - mxe-x86-64-w64-mingw32.static-libunistring
+#     - mxe-x86-64-w64-mingw32.static-lzo
+#     - mxe-x86-64-w64-mingw32.static-mingw-w64
+#     - mxe-x86-64-w64-mingw32.static-mxe-conf
+#     - mxe-x86-64-w64-mingw32.static-nettle
+#     - mxe-x86-64-w64-mingw32.static-openssl
+#     - mxe-x86-64-w64-mingw32.static-pcre
+#     - mxe-x86-64-w64-mingw32.static-pixman
+#     - mxe-x86-64-w64-mingw32.static-pkgconf
+#     - mxe-x86-64-w64-mingw32.static-postgresql
+#     - mxe-x86-64-w64-mingw32.static-pthreads
+#     - mxe-x86-64-w64-mingw32.static-qtactiveqt
+#     - mxe-x86-64-w64-mingw32.static-qtbase
+#     - mxe-x86-64-w64-mingw32.static-qtdeclarative
+#     - mxe-x86-64-w64-mingw32.static-qtmultimedia
+#     - mxe-x86-64-w64-mingw32.static-qtscript
+#     - mxe-x86-64-w64-mingw32.static-qtsvg
+#     - mxe-x86-64-w64-mingw32.static-qttools
+#     - mxe-x86-64-w64-mingw32.static-qtwebchannel
+#     - mxe-x86-64-w64-mingw32.static-qtwebsockets
+#     - mxe-x86-64-w64-mingw32.static-qtwinextras
+#     - mxe-x86-64-w64-mingw32.static-qtxmlpatterns
+#     - mxe-x86-64-w64-mingw32.static-sqlite
+#     - mxe-x86-64-w64-mingw32.static-zlib
+
+# - name: Install cross-compilation package MinGW-64bit-i686
+#   action: apt pkg=mingw-w64-i686-dev
+
+# - name: Install cross-compilation package 2
+#   action: apt pkg=g++-mingw-w64-i686
+
+# - name: Install cross-compilation package 3
+#   action: apt pkg=g++-mingw-w64-x86-64
+
+- name: install X11/OpenGL graphics libs
+  apt: "pkg={{item}} state=installed update-cache=yes"
+  with_items:
+    - libgl1-mesa-dev
+    # - libx11-xcb-dev
+    # - libglu1-mesa-dev
+    # - libxrender-dev
+    # - libxi-dev
+
+# - name: install Qt xcb support
+#   raw: apt-get install "^libxcb.*"
+
+# - name: install ancillary Qt supprt libxcb packages
+#   apt: "pkg={{item}} state=installed update-cache=yes"
+#   with_items:
+#     - libxcb-composite0
+#     - libxcb-composite0-dev
+#     - libxcb-cursor-dev
+#     - libxcb-cursor0
+#     - libxcb-damage0
+#     - libxcb-damage0-dev
+#     - libxcb-dpms0
+#     - libxcb-dpms0-dev
+#     - libxcb-dri2-0
+#     - libxcb-dri2-0-dev
+#     - libxcb-dri3-0
+#     - libxcb-dri3-dev
+#     - libxcb-ewmh-dev
+#     - libxcb-ewmh2
+#     - libxcb-glx0
+#     - libxcb-glx0-dev
+#     - libxcb-icccm4
+#     - libxcb-icccm4-dev
+#     - libxcb-image0
+#     - libxcb-image0-dev
+#     - libxcb-keysyms1
+#     - libxcb-keysyms1-dev
+#     - libxcb-present-dev
+#     - libxcb-present0
+#     - libxcb-randr0
+#     - libxcb-randr0-dev
+#     - libxcb-record0
+#     - libxcb-record0-dev
+#     - libxcb-render-util0
+#     - libxcb-render-util0-dev
+#     - libxcb-render0
+#     - libxcb-render0-dev
+#     - libxcb-res0
+#     - libxcb-res0-dev
+#     - libxcb-screensaver0
+#     - libxcb-screensaver0-dev
+#     - libxcb-shape0
+#     - libxcb-shape0-dev
+#     - libxcb-shm0
+#     - libxcb-shm0-dev
+#     - libxcb-sync-dev
+#     - libxcb-sync1
+#     - libxcb-util-dev
+#     - libxcb-util1
+#     - libxcb-xevie0
+#     - libxcb-xevie0-dev
+#     - libxcb-xf86dri0
+#     - libxcb-xf86dri0-dev
+#     - libxcb-xfixes0
+#     - libxcb-xfixes0-dev
+#     - libxcb-xinerama0
+#     - libxcb-xinerama0-dev
+#     - libxcb-xkb-dev
+#     - libxcb-xkb1
+#     - libxcb-xprint0
+#     - libxcb-xprint0-dev
+#     - libxcb-xtest0
+#     - libxcb-xtest0-dev
+#     - libxcb-xv0
+#     - libxcb-xv0-dev
+#     - libxcb-xvmc0
+#     - libxcb-xvmc0-dev
+#     - libxcb1
+#     - libxcb1-dev
+
+# - name: Install Qt packages
+#   apt: "pkg={{item}} state=installed update-cache=yes"
+#   with_items:
+#     - qt551base
+#     - qt551connectivity
+#     - qt551declarative
+#     - qt551graphicaleffects
+#     - qt551imageformats
+#     - qt551location
+#     - qt551multimedia
+#     - qt551quickcontrols
+#     - qt551quickcontrols2
+#     - qt551script
+#     - qt551svg
+#     - qt551translations
+#     - qt551webchannel
+#     - qt551webengine
+#     - qt551websockets
+#     - qt5513d
+#     - qt551canvas3d
+#     - qt551doc
+#     - qt551scxml
+#     - qt551sensors
+#     - qt551serialbus
+#     - qt551serialport
+#     - qt551tools
+#     - qt551x11extras
+#     - qt551xmlpatterns
+
+
+
+# - name: Install build packages
+#   apt: "pkg={{item}} state=installed update-cache=yes"
+#   with_items:
+#     - p7zip-full
+#     - autoconf
+#     - automake
+#     - autopoint
+#     - bash
+#     - bison
+#     - bzip2
+#     - cmake
+#     - flex
+#     - gettext
+#     - git
+#     - g++
+#     - g++-multilib
+#     - libc6-dev-i386
+#     - libgtk2.0-dev
+#     - gperf
+#     - intltool
+#     - libffi-dev
+#     - libtool
+#     - libltdl-dev
+#     - libssl-dev
+#     - libxml-parser-perl
+#     - make
+#     - openssl
+#     - patch
+#     - perl
+#     - pkg-config
+#     - python
+#     - ruby
+#     - scons
+#     - sed
+#     - wget
+#     - xz-utils

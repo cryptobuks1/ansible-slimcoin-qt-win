@@ -1,0 +1,19 @@
+---
+- name: Slimcoin cross-compile
+  hosts: xcomp
+  gather_facts: true
+  user: vagrant
+  become: true
+  become_method: sudo
+  vars:
+    workers: use at template ansible_processor_count
+    connections : "1024"
+    local_path: "{{ lookup('env','PATH') }}"
+    local_pkgconfig: "{{ lookup('env','PKG_CONFIG_PATH') }}"
+    local_ldlibrarypath: "{{ lookup('env','LD_LIBRARY_PATH') }}"
+
+  tasks:
+    - include: tasks/snipstrings.yaml
+    - include: tasks/packages.yaml
+    - include: tasks/installqrcode.yaml
+    - include: tasks/corebuild.yaml

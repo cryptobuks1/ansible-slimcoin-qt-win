@@ -1,9 +1,0 @@
----
-
-- name: Ansible Playbook for cross-compiling a Windows slimcoin-qt binary on an Ubuntu 16.04 VM
-
-  hosts: xcomp
-  roles:
-    - vagrant
-  remote_user: root
-  sudo: yes

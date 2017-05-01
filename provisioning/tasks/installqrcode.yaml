@@ -1,0 +1,13 @@
+---
+  - name: Download and extract qrencode
+    unarchive: src=http://fukuchi.org/works/qrencode/qrencode-3.4.4.tar.gz dest=/mnt/slm copy=no
+
+  # - name: Set up qrencode
+  #   command: ./autogen.sh CC=/usr/lib/mxe/usr/bin/i686-w64-mingw32.static-gcc CXX=/usr/lib/mxe/usr/bin/i686-w64-mingw32.static-g++ chdir=/mnt/qrencode-3.4.4
+
+  - name: Configure qrencode
+    command: ./configure --prefix=/usr/lib/mxe/usr/i686-w64-mingw32.static --host=x86_64-w64-mingw32 CC=/usr/lib/mxe/usr/bin/i686-w64-mingw32.static-gcc CXX=/usr/lib/mxe/usr/bin/i686-w64-mingw32.static-g++ --enable-static --disable-shared --without-tools  chdir=/mnt/slm/qrencode-3.4.4
+
+  - name: Compile qrencode
+    command: make install RANLIB=/usr/lib/mxe/usr/bin/i686-w64-mingw32.static-ranlib CC=/usr/lib/mxe/usr/bin/i686-w64-mingw32.static-gcc AR=/usr/lib/mxe/usr/bin/i686-w64-mingw32.static-ar CFLAGS="-DSTATICLIB -I/usr/lib/mxe/usr/i686-w64-mingw32.static/include" LDFLAGS="-L/usr/lib/mxe/usr/i686-w64-mingw32.static/lib -lpthread" chdir=/mnt/slm/qrencode-3.4.4
+
