@@ -16,4 +16,5 @@
     - include: tasks/snipstrings.yaml
     - include: tasks/packages.yaml
     - include: tasks/installqrcode.yaml
+    - include: tasks/installminiupnpc.yaml
     - include: tasks/corebuild.yaml

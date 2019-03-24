@@ -18,7 +18,7 @@
   shell: echo 0 | sudo tee /proc/sys/vm/swappiness
 
 - name: Add MXE ppa
-  shell: echo "deb http://pkg.mxe.cc/repos/apt/debian wheezy main" > /etc/apt/sources.list.d/mxeapt.list
+  shell: echo "deb https://mirror.mxe.cc/repos/apt xenial main" > /etc/apt/sources.list.d/mxeapt.list
 
 - apt_key:
     keyserver: keyserver.ubuntu.com
@@ -79,10 +79,10 @@
     - libtool
 
 - name: Install cross-compilation package MinGW-64bit-x86
-  action: apt pkg=mingw-w64-x86-64-dev
+  action: apt pkg=mingw-w64-x86-64-dev allow_unauthenticated=yes
 
 - name: install MXE cross-compilation support packages
-  apt: "pkg={{item}} state=installed update-cache=yes"
+  apt: "pkg={{item}} state=present update-cache=yes allow_unauthenticated=yes"
   with_items:
     - mxe-i686-w64-mingw32.static-boost
     - mxe-i686-w64-mingw32.static-qt

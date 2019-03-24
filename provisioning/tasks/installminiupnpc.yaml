@@ -1,0 +1,15 @@
+---
+  - name: Download and extract miniupnpc
+    unarchive: src=http://miniupnp.free.fr/files/miniupnpc-2.1.tar.gz dest=/mnt/ copy=no
+
+  - name: Compile miniupnpc
+    command: make libminiupnpc.a RANLIB=/usr/lib/mxe/usr/bin/i686-w64-mingw32.static-ranlib CC=/usr/lib/mxe/usr/bin/i686-w64-mingw32.static-gcc AR=/usr/lib/mxe/usr/bin/i686-w64-mingw32.static-ar CFLAGS="-DSTATICLIB -I/usr/lib/mxe/usr/i686-w64-mingw32.static/include" LDFLAGS="-L/usr/lib/mxe/usr/i686-w64-mingw32.static/lib" chdir=/mnt/miniupnpc-2.1
+
+  - name: Create destination for miniupnpc headers
+    file: path=/usr/lib/mxe/usr/i686-w64-mingw32.static/include/miniupnpc state=directory
+
+  - name: Install miniupnpc header files
+    shell: cp *.h /usr/lib/mxe/usr/i686-w64-mingw32.static/include/miniupnpc chdir=/mnt/miniupnpc-2.1
+
+  - name: Install miniupnpc library
+    shell: cp libminiupnpc.a /usr/lib/mxe/usr/i686-w64-mingw32.static/lib chdir=/mnt/miniupnpc-2.1

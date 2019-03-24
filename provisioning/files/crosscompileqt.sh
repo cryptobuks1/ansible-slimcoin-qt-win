@@ -32,20 +32,6 @@ export MINIUPNPC_INCLUDE_PATH=${MXE_INCLUDE_PATH}
 export MINIUPNPC_LIB_PATH=${MXE_LIB_PATH}
 export QMAKE_LRELEASE=${MXE_PATH}/usr/${target}/qt5/bin/lrelease
 
-cat >> slimcoin-qt.pro.patch <<EOT
---- a/slimcoin-qt.pro
-+++ b/slimcoin-qt.pro
-@@ -697,6 +697,7 @@ windows:QMAKE_LFLAGS *= -Wl,--dynamicbase -Wl,--nxcompat
- # on Windows: enable GCC large address aware linker flag
- # hack: when compiling 64-bit, pass 64BIT=1 to qmake to avoid incompatible large-address flag
- windows:!contains(64BIT, 1) QMAKE_LFLAGS *= -Wl,--large-address-aware
-+windows:contains(MXE, 1) LIBS += -lpthread
- 
- macx:{
-     QMAKE_RPATHDIR += @executable_path/../Frameworks
-EOT
-patch -p 1 < slimcoin-qt.pro.patch
-
 # Call qmake to create Makefile.[Release|Debug]
 ${target}-qmake-qt5 \
     MXE=1 \

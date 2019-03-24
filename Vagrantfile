@@ -15,7 +15,7 @@ Vagrant.configure("2") do |config|
   config.vm.box = "geerlingguy/ubuntu1604"
   config.vm.hostname = "xcomp"
   config.ssh.username = "vagrant"
-  config.ssh.private_key_path = "insecure_private_key"
+  config.ssh.private_key_path = "./insecure_private_key"
   config.ssh.insert_key = false
 
   # Disable automatic box update checking. If you disable this, then
